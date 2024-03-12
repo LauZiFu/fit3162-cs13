@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document and Criteria Upload</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header>
+    <a href="{{ url_for('create_project') }}" id="backButton" title="Back to Projects">&larr; Back</a>
+    <h1>Upload Platform</h1>
+</header>
+
+<div id="uploadContainer" class="container">
+
+    <div class="upload-section">
+        <h2>Upload Document</h2>
+        <input type="file" id="documentInput" webkitdirectory directory multiple accept="image/*,audio/*,video/*,.pdf">
+        <div id="documentDisplay" class="display-area"></div>
+        <button id="prevFile">&larr;</button>
+        <button id="nextFile">&rarr;</button>
+    </div>
+    
+
+    <div class="upload-section">
+        <h2>Upload Marking Criteria</h2>
+        <input type="file" id="criteriaInput" accept="image/*,audio/*,video/*,.pdf">
+        <div id="criteriaDisplay" class="display-area"></div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
