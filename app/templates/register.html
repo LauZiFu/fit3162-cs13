@@ -2,25 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h2>Register</h2>
+
+    <header>
+        <h1>Register</h1>
+    </header>
+
     <form method="post" action="">
         {{ form.hidden_tag() }}
-        <p>
+        <h3>
             {{ form.username.label }}<br>
             {{ form.username(size=32) }}{{ form.username.errors }}
-        </p>
-        <p>
+        </h3>
+        <h3>
             {{ form.password.label }}<br>
             {{ form.password(size=32) }}{{ form.password.errors }}
-        </p>
-        <p>
+        </h3>
+        <h3>
             {{ form.confirm_password.label }}<br>
             {{ form.confirm_password(size=32) }}{{ form.confirm_password.errors }}
-        </p>
-        <p>{{ form.submit() }}</p>
+        </h3>
+        <h3>{{ form.submit() }}</h3>
     </form>
 </body>
 </html>

@@ -6,16 +6,21 @@
     <title>Document and Criteria Upload</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
-<header>
-    <a href="{{ url_for('create_project') }}" id="backButton" title="Back to Projects">&larr; Back</a>
-    <h1>Upload Platform</h1>
-</header>
+    <header>
+        <div class="header-left">
+            <a href="{{ url_for('create_project') }}" id="backButton" title="Back to Projects">&larr; Back</a>
+            <button id="toggleSidebar" title="View Projects" > ☰ View Documents </button>
+        </div>
+        <h1>Upload Platform</h1>
+    </header>
+    
 
 <div id="uploadContainer" class="container">
 
     <div class="upload-section">
-        <h2>Upload Document</h2>
+        <h2>Upload Document Folder</h2>
         <input type="file" id="documentInput" webkitdirectory directory multiple accept="image/*,audio/*,video/*,.pdf">
         <div id="documentDisplay" class="display-area"></div>
         <button id="prevFile">&larr;</button>
@@ -30,6 +35,26 @@
     </div>
 </div>
 
+<div id="sidebar" class="sidebar">
+    <button id="toggleSidebar">&equiv;</button>
+    <ul id="documentList">
+        <!-- Dynamically populated list items -->
+    </ul>
+</div>
+
+<!-- Icon for uploading a file -->
+<input type="file" id="singleFileUpload" style="display: none;" accept="image/*,audio/*,video/*,.pdf">
+<label for="singleFileUpload" id="uploadIcon" title="Upload File">&#x1F4E4;</label> <!-- Use an appropriate icon -->
+
+<!-- Popup for displaying the uploaded file -->
+<div id="filePopup" class="file-popup" style="display: none;">
+    <div id="fileContent"></div>
+    <span id="closePopup" title="Close">&#x274C;</span> <!-- Close icon -->
+    <div id="resizeHandle" class="resize-handle"></div> <!-- Resize handle -->
+</div>
+
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
+
 </html>

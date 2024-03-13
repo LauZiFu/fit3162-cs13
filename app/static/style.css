@@ -56,17 +56,112 @@ header {
 h1 {
     margin: 0;
     font-size: 24px;
-    margin-left: 20px;
 }
 
 h2 {
     font-size: 20px;
     color: #333; /* Dark grey */
-    margin-left: 20px;
 }
 
 h3 {
-    font-size: 20px;
+    font-size: 18px;
     color: #333; /* Dark grey */
-    margin-left: 20px;
+}
+
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 60px; /* Need to adjust to match header */
+    width: 250px; /* Sidebar width */
+    height: calc(100% - 60px);  /* Need to adjust to match header */
+    background-color: #f4f4f4;
+    overflow-y: auto; /* Enable scroll if content is too long */
+    border-right: 1px solid #ccc;
+    transition: transform 0.3s; /* Smooth transition for toggling visibility */
+    transform: translateX(-250px); /* Initially hidden */
+}
+
+.sidebar ul {
+    list-style-type: none; /* Removes default list styling */
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    padding: 10px 15px;
+    margin: 5px 0;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+    overflow-wrap: break-word; /* Allows text to wrap */
+}
+
+.sidebar ul li:before {
+    content: counter(item) ". ";
+    counter-increment: item;
+    margin-right: 10px;
+}
+
+.sidebar ul {
+    counter-reset: item;
+}
+
+/* Class to toggle for showing the sidebar */
+.sidebar.active {
+    transform: translateX(0);
+}
+
+#toggleSidebar {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    margin-left: 10px; /* Spacing between toggle and back button */
+}
+
+
+#uploadIcon {
+    cursor: pointer;
+    /* Style your upload icon appropriately */
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    font-size: 24px; /* Example size */
+}
+
+.file-popup {
+    position: fixed;
+    width: 300px;
+    height: auto;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    z-index: 1000; /* Ensure it's above other content */
+    resize: both;
+    overflow: auto;
+}
+
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 20px;
+    height: 20px;
+    background: #ccc;
+    cursor: se-resize; /* Indicates the resize cursor */
+}
+
+
+#fileContent {
+    /* Still need to style as needed */
+} 
+
+#closePopup {
+    cursor: pointer;
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 20px;
 }
