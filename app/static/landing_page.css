@@ -36,6 +36,11 @@ footer{
     margin: 0 auto;
 }
 
+header > .container,
+footer > .container {
+    width: 95%;
+}
+
 #navigation{
     display: flex;
     justify-content: flex-end;
@@ -61,6 +66,10 @@ button#login{
     width: 10em;
     border: 1px;
     color: black;
+}
+
+button#login:hover{
+    background-color: grey;
 }
 
 .information{
