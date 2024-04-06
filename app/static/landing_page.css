@@ -1,0 +1,77 @@
+* {
+    box-sizing: border-box;
+}
+
+/*https://coolors.co/1c2321-7d98a1-5e6572-a9b4c2-eef1ef */
+body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    font-family: system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    display: flex;
+    flex-direction: column;
+}
+
+body > section:not(header, footer){
+    flex:1;
+}
+
+header,
+footer{
+    background-color: #1C2321;
+    color: #ffffff;
+}
+
+.logo{
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.container{
+    display: flex;
+    width: 70%;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+header > .container,
+footer > .container {
+    width: 95%;
+}
+
+#navigation{
+    display: flex;
+    justify-content: flex-end;
+    align-items:center;
+    flex: 1;
+    gap: 10px;
+}
+
+#navigation a,
+button#login {
+    color: #ffffff;
+    font-size: 0.8rem;
+}
+
+#navigation li:not(#login, #register) {
+    padding-right: 10px;
+    border-right: 1px solid #fff; 
+}
+
+button#login{
+    border-radius: 20px;
+    padding: 10px;
+    width: 10em;
+    border: 1px;
+    color: black;
+}
+
+button#login:hover{
+    background-color: grey;
+}
+
+.information{
+    background-color: #EEF1EF;
+}
