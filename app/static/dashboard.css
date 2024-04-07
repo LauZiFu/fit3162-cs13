@@ -1,0 +1,104 @@
+* {
+    margin: 0;
+    padding: 0;
+    border: 1px solid red !important;
+    box-sizing: border-box;
+}
+
+.container {
+    height:100vh;
+    text-align: center;
+    display: grid;
+    grid-template-columns: 1fr 4fr;
+    grid-template-rows: 50px max-content 1fr;
+}  
+
+.container div {
+    padding: 15px;
+    font-family: Helvetica;
+    font-weight: bold;
+}
+
+.header{
+    grid-column: 2/3;
+    grid-row: 2/3;
+    display: flex;
+    align-items: end;
+}
+
+#name{
+    flex:1;
+    text-align: left;
+}
+
+.header ul{
+    display:flex;
+    justify-content: center;
+    align-items: end;
+    gap: 20px;
+    padding: 0px 30px;
+}
+
+button {
+    border-radius: 12px;
+    width: 5rem;
+    padding: 10px;
+    background-color: rgb(0, 153, 255);
+    color:white;
+    font-weight: bold;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    grid-column: 1/2;
+    grid-row: 1/4;
+    background-color: rgb(0, 153, 255);
+    color:white;
+}    
+
+.sidebar .nav{
+    flex:1;
+    display: flex;
+    flex-direction: column;
+    gap:20px;
+}
+
+div.content{
+    display:flex;
+    justify-content: space-evenly;
+    grid-row: 3/4;
+    grid-column: 2/3;
+    padding: 0px;
+    background-color: grey;
+}
+
+.section_name{
+    text-align: left;
+}
+
+#projects{
+    flex:4;
+    display: gird;
+    gap: 15px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+#projects .project_card{
+    background-color: white;
+    color: black;
+    text-align: left;
+    height: 200px;
+}
+
+.project_card p{
+    color: black;
+    font-weight: normal;
+    font-size: 14px;
+}
+
+#tips{
+    flex:1;
+}
+
