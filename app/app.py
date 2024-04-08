@@ -80,7 +80,7 @@ def register():
 def create_project():
     if request.method == 'POST':
         return redirect(url_for('upload'))
-    return render_template('project_page.html')
+    return render_template('dashboard.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 @login_required
