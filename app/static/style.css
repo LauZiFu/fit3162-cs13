@@ -6,7 +6,7 @@ body, html {
 }
 
 header {
-    background-color: #007bff; /* Blue shade */
+    background-color: #000000; /* Blue shade */
     color: #ffffff; /* White */
     padding: 20px;
     text-align: center;
@@ -37,131 +37,197 @@ header {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.display-area {
-    border: 1px solid #ccc;
-    margin-top: 20px;
-    padding: 10px;
-    height: 300px; /*  */
-    overflow: auto;
-    background-color: #fafafa; /* Light grey */
-}
-
-.display-area img,
-.display-area video,
-.display-area audio {
-    max-width: 100%;
-    height: auto;
-}
-
-h1 {
-    margin: 0;
-    font-size: 24px;
-}
-
-h2 {
+.upload-section h2 {
+    margin-top: 0;
     font-size: 20px;
     color: #333; /* Dark grey */
 }
 
-h3 {
-    font-size: 18px;
+.upload-section input[type="file"] {
+    margin-top: 10px;
+}
+
+.upload-section button[type="submit"] {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #000000; /* Blue shade */
+    color: #ffffff; /* White */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.upload-section button[type="submit"]:hover {
+    background-color: #000000; /* Darker blue on hover */
+}
+
+.uploaded-content {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+}
+
+.document-viewer, .criteria-viewer {
+    width: 30%; /* Adjusted width */
+    background-color: #ffffff; /* White */
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.document-viewer2 , .criteria-viewer2 {
+    width: 30%; /* Adjusted width */
+    background-color: #ffffff; /* White */
+    padding: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.navigation-arrows {
+    margin-top: 20px;
+}
+
+.navigation-arrows button {
+    padding: 10px 20px;
+    background-color: #000000; /* Blue shade */
+    color: #ffffff; /* White */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.navigation-arrows button:hover {
+    background-color: #000000; /* Darker blue on hover */
+}
+
+.criteria-container {
+    margin-top: 20px;
+    border: 1px solid #ccc; /* Added border */
+    padding: 10px; /* Added padding */
+}
+
+.feedback-section {
+    width: 90%;
+    max-width: 800px;
+    margin: 50px auto; /* Center the section */
+    padding: 40px; /* Increased padding */
+    background-color: #fff; /* White */
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.feedback-section h2 {
+    margin-top: 0;
+    font-size: 20px;
     color: #333; /* Dark grey */
 }
 
+#documentFeedback {
+    width: 100%;
+    height: 250px; /* Increased height */
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    resize: vertical; /* Allow vertical resizing */
+}
+
+#submitFeedback {
+    display: inline-block;
+    margin-top: 20px; /* Increased margin */
+    padding: 15px 30px; /* Increased padding */
+    background-color: #000000; /* Blue shade */
+    color: #ffffff; /* White */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#submitFeedback:hover {
+    background-color: #000000; /* Darker blue on hover */
+}
+
+#uploadPlatformHeader {
+    text-align: center; /* Center align the text */
+    margin: 0 auto; /* Center the element horizontally */
+}
+
+
+/* Sidebar styling */
 .sidebar {
-    position: fixed;
+    height: 100%;
+    width: 250px;
+    position: absolute;
+    top: 85px;
     left: 0;
-    top: 60px; /* Need to adjust to match header */
-    width: 250px; /* Sidebar width */
-    height: calc(100% - 60px);  /* Need to adjust to match header */
-    background-color: #f4f4f4;
-    overflow-y: auto; /* Enable scroll if content is too long */
-    border-right: 1px solid #ccc;
-    transition: transform 0.3s; /* Smooth transition for toggling visibility */
-    transform: translateX(-250px); /* Initially hidden */
+    background-color: #111;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-top: 20px;
+    z-index: 1; /* Ensure the sidebar is above other content */
 }
 
 .sidebar ul {
-    list-style-type: none; /* Removes default list styling */
     padding: 0;
     margin: 0;
 }
 
-.sidebar ul li {
-    padding: 10px 15px;
-    margin: 5px 0;
-    cursor: pointer;
-    border-bottom: 1px solid #ccc;
-    overflow-wrap: break-word; /* Allows text to wrap */
+.sidebar li {
+    padding: 10px 16px; /* Adjusted padding */
+    list-style: none; /* Removed default list styles */
+    overflow: hidden; /* Hides overflow */
+    text-overflow: ellipsis; /* Shows ellipsis for overflow */
+    margin-bottom: 4px; /* Added margin to create space between items */
+    word-wrap: break-word; /* Force text to wrap */
 }
 
-.sidebar ul li:before {
-    content: counter(item) ". ";
-    counter-increment: item;
-    margin-right: 10px;
+.sidebar a {
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    /* Adjusted padding */
+    padding-top: 8px;
+    padding-bottom: 8px;
+    padding-left: 20px;
+    background-color: #111; /* Ensure the background color remains opaque */
 }
 
-.sidebar ul {
-    counter-reset: item;
+.sidebar a:hover {
+    color: #f1f1f1;
+    background-color: #111; /* Ensure the background color remains opaque */
 }
 
-/* Class to toggle for showing the sidebar */
-.sidebar.active {
-    transform: translateX(0);
-}
-
-#toggleSidebar {
-    background: none;
+#toggleSidebar, #toggleUpload {
+    padding: 12px 24px; /* Increased padding */
+    font-size: 16px; /* Adjusted font size */
+    background-color: #000000; /* Blue shade */
+    color: #ffffff; /* White */
     border: none;
-    color: #ffffff;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    margin-left: 10px; /* Spacing between toggle and back button */
+    margin-right: 10px; /* Added margin between buttons */
 }
 
-
-#uploadIcon {
-    cursor: pointer;
-    /* Style your upload icon appropriately */
-    position: fixed;
-    bottom: 20px;
-    left: 20px;
-    font-size: 24px; /* Example size */
+#toggleSidebar:hover, #toggleUpload:hover {
+    background-color: #000000; /* Darker blue on hover */
 }
 
-.file-popup {
-    position: fixed;
-    width: 300px;
-    height: auto;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+#uploadPlatformHeader {
+    text-align: center; /* Center align the text */
+    margin: 0 auto; /* Center the element horizontally */
+}
+
+.search-container {
+    text-align: center;
     padding: 10px;
-    z-index: 1000; /* Ensure it's above other content */
-    resize: both;
-    overflow: auto;
 }
 
-.resize-handle {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 20px;
-    height: 20px;
-    background: #ccc;
-    cursor: se-resize; /* Indicates the resize cursor */
-}
-
-
-#fileContent {
-    /* Still need to style as needed */
-} 
-
-#closePopup {
-    cursor: pointer;
-    position: absolute;
-    top: 5px;
-    right: 10px;
-    font-size: 20px;
+#searchInput {
+    width: 80%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    box-sizing: border-box;
 }
