@@ -10,51 +10,250 @@
 <body>
     <header>
         <div class="header-left">
-            <a href="./dashboard.html" id="backButton" title="Back to Projects">&larr; Back</a>
-            <button id="toggleSidebar" title="View Projects" > ☰ View Documents </button>
+            <a href="{{ url_for('create_project') }}" id="backButton" title="Back to Projects">&larr; Back</a>
+            <button id="toggleSidebar" title="View Documents" onclick="toggleSidebar()">☰ View Documents</button>
         </div>
-        <h1>Upload Platform</h1>
-    </header>
+        <h1 id="uploadPlatformHeader">Upload Platform</h1>
+        <button id="toggleUpload" type="button">Toggle Upload</button>
+    </header> 
     
-
-<div id="uploadContainer" class="container">
-
-    <div class="upload-section">
-        <h2>Upload Document Folder</h2>
-        <input type="file" id="documentInput" webkitdirectory directory multiple accept="image/*,audio/*,video/*,.pdf">
-        <div id="documentDisplay" class="display-area"></div>
-        <button id="prevFile">&larr;</button>
-        <button id="nextFile">&rarr;</button>
+    
+    <div id="sidebar" class="sidebar" style="display: none;">
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search documents...">
+        </div>
+        <ul id="documentList">
+            {% for document in documents %}
+            <li><a href="#" onclick="navigateToDocument('{{ document.id }}')">{{ loop.index }}. {{ document.filename }}</a></li>
+            {% endfor %}
+        </ul>
     </div>
     
+    
 
-    <div class="upload-section">
-        <h2>Upload Marking Criteria</h2>
-        <input type="file" id="criteriaInput" accept="image/*,audio/*,video/*,.pdf">
-        <div id="criteriaDisplay" class="display-area"></div>
+  
+
+    <form method="POST" enctype="multipart/form-data" id="uploadForm">
+        <div id="uploadContainer" class="container">
+            <div class="upload-section">
+                <h2>Upload Document Folder</h2>
+                <input type="file" name="documentInput" webkitdirectory directory multiple accept="image/*,audio/*,video/*,.pdf">
+            </div>
+            
+            <div class="upload-section">
+                <h2>Upload Marking Criteria</h2>
+                <input type="file" name="criteriaInput" accept="image/*,audio/*,video/*,.pdf">
+            </div>
+            <button type="submit">Upload Files</button>
+        </div>
+    </form>
+
+    <div class="uploaded-content">
+        <div class="document-viewer" style="float: left; width: 50%;">
+            <h2>Uploaded Documents</h2>
+            {% for document in documents %}
+            <div class="file-container" id="document{{ document.id }}">
+                <object data="{{ url_for('download_file', document_id=document.id) }}" type="application/pdf" style="width:100%; height:500px;">
+                    <p>PDF cannot be displayed. <a href="{{ url_for('download_file', document_id=document.id) }}">Download PDF</a></p>
+                </object>
+            </div>
+            {% endfor %}
+            <div class="navigation-arrows">
+                <button onclick="previousDocument()">Previous</button>
+                <button onclick="nextDocument()">Next</button>
+            </div>
+        </div>
+
+        <div class="document-viewer2" style="float: right; width: 50%;">
+            <h2>Marking Criteria</h2>
+            {% if criteria %}
+            <div class="file-container" id="criteria{{ criteria.id }}">
+                <object data="{{ url_for('download_criteria', document_id=criteria.id) }}" type="application/pdf" style="width:100%; height:500px;">
+                    <p>PDF cannot be displayed. <a href="{{ url_for('download_criteria', document_id=criteria.id) }}">Download PDF</a></p>
+                </object>
+            </div>
+            {% else %}
+            <p>No criteria document uploaded.</p>
+            {% endif %}
+        </div>
     </div>
-</div>
 
-<div id="sidebar" class="sidebar">
-    <button id="toggleSidebar">&equiv;</button>
-    <ul id="documentList">
-        <!-- Dynamically populated list items -->
-    </ul>
-</div>
+    <div class="feedback-section">
+        <h2>Feedback for Document</h2>
+        <textarea id="documentFeedback" placeholder="Enter your feedback based on the marking criteria here..."></textarea>
+        <button type="button" id="submitFeedback">Submit Feedback and Download</button>
+    </div>
 
-<!-- Icon for uploading a file -->
-<input type="file" id="singleFileUpload" style="display: none;" accept="image/*,audio/*,video/*,.pdf">
-<label for="singleFileUpload" id="uploadIcon" title="Upload File">&#x1F4E4;</label> <!-- Use an appropriate icon -->
+    <script>
+        // JavaScript for arrow key navigation
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "ArrowLeft") {
+                previousDocument();
+            } else if (event.key === "ArrowRight") {
+                nextDocument();
+            }
+        });
 
-<!-- Popup for displaying the uploaded file -->
-<div id="filePopup" class="file-popup" style="display: none;">
-    <div id="fileContent"></div>
-    <span id="closePopup" title="Close">&#x274C;</span> <!-- Close icon -->
-    <div id="resizeHandle" class="resize-handle"></div> <!-- Resize handle -->
-</div>
+        // JavaScript functions to navigate between documents
+        let currentDocumentIndex = 0;
+        const documents = document.querySelectorAll('.document-viewer .file-container');
+
+        function showDocument(index) {
+            documents.forEach(function(doc) {
+                doc.style.display = 'none';
+            });
+            documents[index].style.display = 'block';
+        }
+
+        function previousDocument() {
+            currentDocumentIndex = (currentDocumentIndex - 1 + documents.length) % documents.length;
+            showDocument(currentDocumentIndex);
+        }
+
+        function nextDocument() {
+            currentDocumentIndex = (currentDocumentIndex + 1) % documents.length;
+            showDocument(currentDocumentIndex);
+        }
+
+        // Show the first document initially
+        showDocument(0);
+
+        // JavaScript to toggle the visibility of the upload section
+        const uploadContainer = document.getElementById('uploadContainer');
+        const toggleUploadButton = document.getElementById('toggleUpload');
+
+        toggleUploadButton.addEventListener('click', function() {
+            if (uploadContainer.style.display === 'none') {
+                uploadContainer.style.display = 'flex'; // Change display to flex
+            } else {
+                uploadContainer.style.display = 'none';
+            }
+        });
+
+        // JavaScript to handle form submission
+        const uploadForm = document.getElementById('uploadForm');
+        uploadForm.addEventListener('submit', function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+            // FOrm submission logic here
+        });
 
 
-<script src="{{ url_for('static', filename='script.js') }}"></script>
+        // Function to navigate to a specific document
+        function navigateToDocument(documentId) {
+            const index = Array.from(documents).findIndex(doc => doc.id === `document${documentId}`);
+            if (index !== -1) {
+                showDocument(index);
+            }
+        }
+
+        document.getElementById('submitFeedback').addEventListener('click', function() {
+        const feedbackText = document.getElementById('documentFeedback').value;
+        const uploadedFiles = document.querySelectorAll('.document-viewer .file-container object[data]');
+        const currentIndex = currentDocumentIndex;
+
+        // Check if there are uploaded documents
+        if (uploadedFiles.length === 0) {
+            alert('No documents uploaded.');
+            return;
+        }
+
+        // Check if feedback text is provided
+        if (feedbackText.trim() === '') {
+            alert('Please enter feedback before submitting.');
+            return;
+        }
+
+        // Get the current document filename
+        const currentFileName = uploadedFiles[currentIndex].getAttribute('data');
+        const fileNameWithoutExtension = currentFileName.split('/').pop().replace(/\.[^/.]+$/, ''); // Extract filename without extension
+
+        // Initialize jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Add feedback text to PDF
+        doc.text(feedbackText, 10, 10);
+
+        // Generate download filename based on the current document
+        const downloadName = fileNameWithoutExtension + "_feedback.pdf";
+
+        // Save the PDF
+        doc.save(downloadName);
+
+        });
+
+        // JavaScript to handle sidebar toggling
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const toggleSidebarButton = document.getElementById('toggleSidebar');
+            const searchInput = document.getElementById('searchInput');
+            const documentList = document.getElementById('documentList').getElementsByTagName('li');
+
+            if (!sidebar || !toggleSidebarButton || !searchInput || !documentList) {
+                console.error('Sidebar, toggle button, search input, or document list not found.');
+                return;
+            }
+
+            // Function to open the sidebar
+            function openSidebar() {
+                sidebar.style.display = 'block';
+            }
+
+            // Function to close the sidebar
+            function closeSidebar() {
+                sidebar.style.display = 'none';
+            }
+
+            // Event listener to toggle sidebar visibility on button click
+            toggleSidebarButton.addEventListener('click', function() {
+                if (sidebar.style.display === 'block') {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+
+
+            // Prevent scrolling the background page when scrolling inside the sidebar
+            sidebar.addEventListener('mousewheel', function(e) {
+                e.stopPropagation();
+            });
+
+            // Disable wheel event on sidebar to prevent rapid scrolling
+            sidebar.addEventListener('wheel', function(e) {
+                e.preventDefault();
+            });
+
+            // Function to filter document list based on search input
+            function filterDocuments() {
+                const searchTerm = searchInput.value.toLowerCase();
+                for (let i = 0; i < documentList.length; i++) {
+                    const documentName = documentList[i].innerText.toLowerCase();
+                    if (documentName.includes(searchTerm)) {
+                        documentList[i].style.display = 'block';
+                    } else {
+                        documentList[i].style.display = 'none';
+                    }
+                }
+            }
+
+            // Event listener for search input
+            searchInput.addEventListener('input', function() {
+                filterDocuments();
+            });
+        });
+
+
+
+
+
+
+        
+
+    </script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
 </body>
-
 </html>
