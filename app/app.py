@@ -107,6 +107,10 @@ def create_project():
         return redirect(url_for('upload'))
     return render_template('dashboard.html')
 
+@app.route('/help')
+def help():
+    return render_template('help.html')
+
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
     if request.method == 'POST':
