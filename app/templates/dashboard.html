@@ -34,6 +34,26 @@
             <h1 class="section_name" id="project_sect">Your Projects</h1>
             <div id="projects"></div>
         </div>
+
+        <div class="form_popup" id="myForm">
+            <form method="post" class="form_container">
+                <section>
+                    <h1>Project Title</h1>
+                    <label for="project_title"></label>
+                    <input type="text" id="project_title" name = "project_title" placeholder="insert project name">
+                </section>
+                <section>
+                    <h1>Project Desription</h1>
+                    <label for="project_description"></label>
+                    <textarea rows="10" maxlength="250" name ="project_description" id="project_description"></textarea>
+                </section>
+                <section id="form_buttons">
+                    <button type="button" id="submitButton">Create Project</button>
+                    <button type="button" id="closeButton">Cancel</button>
+                </section>
+            </form>
+        </div>
+
     </div>
 </body>
 </html>
