@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, send_file, Response
+from flask import Flask, render_template, redirect, url_for, request, send_file, Response, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm
@@ -44,6 +44,7 @@ class Document(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
+    feedback = db.Column(db.Text)
 
 class CriteriaDocument(db.Model):
     __bind_key__ = 'documents'
@@ -67,6 +68,40 @@ class RegistrationForm(FlaskForm):
     password = PasswordField('Password', validators=[InputRequired(), Length(min=6)])
     confirm_password = PasswordField('Confirm Password', validators=[InputRequired(), EqualTo('password')])
     submit = SubmitField('Register')
+
+
+
+class CustomTemplate(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    fields = db.Column(db.String(300), nullable=False)
+
+# Route to add new template
+@app.route('/add_template', methods=['POST'])
+def add_template():
+    data = request.json
+    name = data['name']
+    fields = ','.join(data['fields'])
+
+    if not CustomTemplate.query.filter_by(name=name).first():
+        new_template = CustomTemplate(name=name, fields=fields)
+        db.session.add(new_template)
+        db.session.commit()
+    return jsonify({'status': 'success'})
+
+# Route to get all templates
+@app.route('/get_templates')
+def get_templates():
+    templates = CustomTemplate.query.all()
+    return jsonify([{'name': t.name, 'fields': t.fields.split(',')} for t in templates])
+
+@app.route('/clear_templates', methods=['POST'])
+def clear_templates():
+    CustomTemplate.query.delete()
+    db.session.commit()
+    return jsonify(status='success', message='All custom templates cleared.')
+
+
 
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
@@ -106,10 +141,6 @@ def create_project():
     if request.method == 'POST':
         return redirect(url_for('upload'))
     return render_template('dashboard.html')
-
-@app.route('/help')
-def help():
-    return render_template('help.html')
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
@@ -154,6 +185,33 @@ def download_criteria(document_id):
     
     # Serve the PDF data directly in the response
     return Response(criteria_document.data, mimetype='application/pdf')
+
+
+@app.route('/reset_project', methods=['POST'])
+@login_required
+def reset_project():
+    # Delete all documents from the database
+    Document.query.delete()
+    CriteriaDocument.query.delete()
+    db.session.commit()
+    return redirect(url_for('upload'))
+
+
+
+
+@app.route('/save_feedback/<int:document_id>', methods=['POST'])
+def save_feedback(document_id):
+    document = Document.query.get_or_404(document_id)
+    feedback = request.form['feedback']
+    document.feedback = feedback
+    db.session.commit()
+    return jsonify(status='success', message='Feedback saved successfully.')
+
+
+@app.route('/load_feedback/<int:document_id>', methods=['GET'])
+def load_feedback(document_id):
+    document = Document.query.get_or_404(document_id)
+    return jsonify(feedback=document.feedback)
 
 
 @app.route('/')

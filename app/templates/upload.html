@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document and Criteria Upload</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <!-- Include Quill stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+
+    <!-- Include Quill library -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
 </head>
 
 <body>
@@ -15,6 +22,10 @@
         </div>
         <h1 id="uploadPlatformHeader">Upload Platform</h1>
         <button id="toggleUpload" type="button">Toggle Upload</button>
+
+        <form action="{{ url_for('reset_project') }}" method="POST" style="display: inline;">
+            <button type="submit" id="resetProjectBtn" onclick="confirmReset()">Reset Project</button>
+        </form>
     </header> 
     
     
@@ -78,13 +89,296 @@
         </div>
     </div>
 
-    <div class="feedback-section">
+    <!-- <div class="feedback-section">
         <h2>Feedback for Document</h2>
         <textarea id="documentFeedback" placeholder="Enter your feedback based on the marking criteria here..."></textarea>
         <button type="button" id="submitFeedback">Submit Feedback and Download</button>
+    </div> -->
+
+
+
+    <div class="feedback-section">
+        <h2>Feedback for Document</h2>
+        
+        <label for="feedbackType">Select Feedback Type:</label>
+        <select id="feedbackType" style="margin-bottom: 15px;">
+            <option value="default">Select...</option>
+            <option value="studentAssignment">Student Assignment</option>
+            <option value="jobApplication">Job Application</option>
+            <option value="medicalExamination">Medical Examination</option>
+        </select>
+
+
+        <button id="addTemplateBtn" type="button">Add Template</button>
+        <button id="clearTemplatesBtn" type="button">Clear Custom Templates</button>
+        <div id="customTemplateForm" style="display:none; margin-top: 15px;">
+            <label for="templateName">Template Name:</label>
+            <input type="text" id="templateName">
+            <label for="templateField1">Field 1 Name:</label>
+            <input type="text" id="templateField1">
+            <label for="templateField2">Field 2 Name:</label>
+            <input type="text" id="templateField2">
+            <label for="templateField3">Field 3 Name:</label>
+            <input type="text" id="templateField3">
+            <button id="saveTemplateBtn" type="button">Save Template</button>
+        </div>
+
+  
+        
+        <!-- Custom Template Fields will be appended here -->
+        <div id="customTemplateFields" class="additional-fields"></div>
+
+
+    
+        <!-- Fields for Student Assignment -->
+        <div id="studentAssignmentFields" class="additional-fields" style="display: none;">
+            <div class="input-group">
+                <label for="grade">Grade:</label>
+                <input type="text" id="grade">
+            </div>
+            <div class="input-group">
+                <label for="passFail">Pass/Fail:</label>
+                <input type="text" id="passFail">
+            </div>
+            <div class="input-group">
+                <label for="lateSubmission">Late Submission (Y/N):</label>
+                <input type="text" id="lateSubmission">
+            </div>
+        </div>
+    
+        <!-- Fields for Job Application -->
+        <div id="jobApplicationFields" class="additional-fields" style="display: none;">
+            <div class="input-group">
+                <label for="criteriaAlignment">Criteria Alignment:</label>
+                <input type="text" id="criteriaAlignment">
+            </div>
+            <div class="input-group">
+                <label for="strengths">Strengths:</label>
+                <input type="text" id="strengths">
+            </div>
+            <div class="input-group">
+                <label for="areasImprovement">Areas for Improvement:</label>
+                <input type="text" id="areasImprovement">
+            </div>
+            <div class="input-group">
+                <label for="keyQualifications">Key Qualifications:</label>
+                <input type="text" id="keyQualifications">
+            </div>
+            <div class="input-group">
+                <label for="notableAchievements">Notable Achievements:</label>
+                <input type="text" id="notableAchievements">
+            </div>
+            <div class="input-group">
+                <label for="fitAssessment">Fit Assessment:</label>
+                <input type="text" id="fitAssessment">
+            </div>
+        </div>
+    
+    
+    <!-- Fields for Medical Examination Results -->
+    <div id="medicalExaminationFields" class="additional-fields" style="display: none;">
+        <div class="input-group">
+            <label for="potentialDiagnoses">Potential Diagnoses:</label>
+            <input type="text" id="potentialDiagnoses">
+        </div>
+        <div class="input-group">
+            <label for="treatmentPlan">Treatment Plan:</label>
+            <input type="text" id="treatmentPlan">
+        </div>
+        <div class="input-group">
+            <label for="followUp">Follow-up (Yes/No):</label>
+            <input type="text" id="followUp">
+        </div>
+        <div class="input-group">
+            <label for="referral">Referral (Yes/No):</label>
+            <input type="text" id="referral">
+        </div>
+        <div class="input-group">
+            <label for="outcome">Outcome:</label>
+            <input type="text" id="outcome">
+        </div>
     </div>
+    
+    <div id="editor-container" style="height: 200px; margin-top: 10px;"></div>
+        <button type="button" id="submitFeedback">Submit Feedback and Download</button>
+        <button type="button" id="saveFeedback">Save Feedback</button>
+    </div>
+    
+
+
+
 
     <script>
+
+        var quill = new Quill('#editor-container', {
+            theme: 'snow'
+        });
+
+        let customTemplates = [];
+
+        function loadTemplates() {
+            fetch('/get_templates')
+                .then(response => response.json())
+                .then(data => {
+                    customTemplates = data;
+                    const feedbackTypeDropdown = document.getElementById('feedbackType');
+                    data.forEach(template => {
+                        const option = document.createElement('option');
+                        option.value = template.name;
+                        option.textContent = template.name;
+                        feedbackTypeDropdown.appendChild(option);
+                    });
+                });
+        }
+
+        document.getElementById('addTemplateBtn').addEventListener('click', function() {
+            document.getElementById('customTemplateForm').style.display = 'block';
+        });
+
+        document.getElementById('saveTemplateBtn').addEventListener('click', function() {
+            const templateName = document.getElementById('templateName').value;
+            const fields = [
+                document.getElementById('templateField1').value,
+                document.getElementById('templateField2').value,
+                document.getElementById('templateField3').value
+            ];
+
+            if (!templateName || fields.includes('')) {
+                alert('Please fill all fields to save the template.');
+                return;
+            }
+
+            fetch('/add_template', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: templateName, fields })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    const option = document.createElement('option');
+                    option.value = templateName;
+                    option.textContent = templateName;
+                    document.getElementById('feedbackType').appendChild(option);
+                    
+                    // Add the template to the customTemplates array
+                    customTemplates.push({name: templateName, fields: fields});
+
+                    document.getElementById('customTemplateForm').style.display = 'none';
+                }
+            });
+        });
+
+        document.getElementById('feedbackType').addEventListener('change', function() {
+            var studentFields = document.getElementById('studentAssignmentFields');
+            var jobFields = document.getElementById('jobApplicationFields');
+            var medicalFields = document.getElementById('medicalExaminationFields');
+            var customTemplateFields = document.getElementById('customTemplateFields');
+
+            // Hide all additional fields initially
+            studentFields.style.display = 'none';
+            jobFields.style.display = 'none';
+            medicalFields.style.display = 'none';
+            customTemplateFields.style.display = 'none';
+
+            if (this.value === 'studentAssignment') {
+                studentFields.style.display = 'block';
+            } else if (this.value === 'jobApplication') {
+                jobFields.style.display = 'block';
+            } else if (this.value === 'medicalExamination') {
+                medicalFields.style.display = 'block';
+            } else {
+                const customTemplate = customTemplates.find(t => t.name === this.value);
+                if (customTemplate) {
+                    customTemplateFields.innerHTML = customTemplate.fields.map((field, idx) =>
+                        `<div class="input-group">
+                            <label for="customField${idx}">${field}:</label>
+                            <input type="text" id="customField${idx}">
+                        </div>`).join('');
+                    customTemplateFields.style.display = 'block';
+                }
+            }
+        });
+
+        document.getElementById('submitFeedback').addEventListener('click', function() {
+            const feedbackType = document.getElementById('feedbackType').value;
+            let feedbackContent = '';
+
+            if (feedbackType === 'studentAssignment') {
+                const grade = document.getElementById('grade').value;
+                const passFail = document.getElementById('passFail').value;
+                const lateSubmission = document.getElementById('lateSubmission').value;
+                feedbackContent += `Grade: ${grade}\nPass/Fail: ${passFail}\nLate Submission: ${lateSubmission}\n\n`;
+            } else if (feedbackType === 'jobApplication') {
+                const criteriaAlignment = document.getElementById('criteriaAlignment').value;
+                const strengths = document.getElementById('strengths').value;
+                const areasImprovement = document.getElementById('areasImprovement').value;
+                const keyQualifications = document.getElementById('keyQualifications').value;
+                const notableAchievements = document.getElementById('notableAchievements').value;
+                const fitAssessment = document.getElementById('fitAssessment').value;
+                feedbackContent += `Criteria Alignment: ${criteriaAlignment}\nStrengths: ${strengths}\nAreas for Improvement: ${areasImprovement}\nKey Qualifications: ${keyQualifications}\nNotable Achievements: ${notableAchievements}\nFit Assessment: ${fitAssessment}\n\n`;
+            } else if (feedbackType === 'medicalExamination') {
+                const potentialDiagnoses = document.getElementById('potentialDiagnoses').value;
+                const treatmentPlan = document.getElementById('treatmentPlan').value;
+                const followUp = document.getElementById('followUp').value;
+                const referral = document.getElementById('referral').value;
+                const outcome = document.getElementById('outcome').value;
+                feedbackContent += `Potential Diagnoses: ${potentialDiagnoses}\nTreatment Plan: ${treatmentPlan}\nFollow-up: ${followUp}\nReferral: ${referral}\nOutcome: ${outcome}\n\n`;
+            } else {
+                const customTemplate = customTemplates.find(t => t.name === feedbackType);
+                if (customTemplate) {
+                    customTemplate.fields.forEach((field, idx) => {
+                        const fieldValue = document.getElementById(`customField${idx}`).value;
+                        feedbackContent += `${field}: ${fieldValue}\n`;
+                    });
+                    feedbackContent += '\n';
+                }
+            }
+
+            const feedbackText = quill.root.innerHTML;
+            feedbackContent += feedbackText;
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            const tempDivElement = document.createElement("div");
+            tempDivElement.innerHTML = feedbackContent;
+            const plainTextFeedback = tempDivElement.textContent || tempDivElement.innerText || "";
+
+            doc.text(plainTextFeedback, 10, 10);
+
+            const downloadName = "feedback.pdf";
+            doc.save(downloadName);
+        });
+
+
+
+        document.getElementById('clearTemplatesBtn').addEventListener('click', function() {
+            if (confirm('Are you sure you want to clear all custom templates?')) {
+                fetch('/clear_templates', {
+                    method: 'POST',
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        // Clear custom templates from the frontend
+                        customTemplates = [];
+                        const feedbackTypeDropdown = document.getElementById('feedbackType');
+                        // Remove all custom template options
+                        Array.from(feedbackTypeDropdown.options).forEach(option => {
+                            if (['studentAssignment', 'jobApplication', 'medicalExamination'].indexOf(option.value) === -1) {
+                                feedbackTypeDropdown.removeChild(option);
+                            }
+                        });
+                        alert(data.message);
+                    }
+                });
+            }
+        });
+
+
+
+
         // JavaScript for arrow key navigation
         document.addEventListener('keydown', function(event) {
             if (event.key === "ArrowLeft") {
@@ -108,11 +402,15 @@
         function previousDocument() {
             currentDocumentIndex = (currentDocumentIndex - 1 + documents.length) % documents.length;
             showDocument(currentDocumentIndex);
+            const documentId = documents[currentDocumentIndex].id.replace('document', '');
+            navigateToDocument(documentId);
         }
 
         function nextDocument() {
             currentDocumentIndex = (currentDocumentIndex + 1) % documents.length;
             showDocument(currentDocumentIndex);
+            const documentId = documents[currentDocumentIndex].id.replace('document', '');
+            navigateToDocument(documentId);
         }
 
         // Show the first document initially
@@ -145,43 +443,10 @@
             if (index !== -1) {
                 showDocument(index);
             }
+            currentDocumentId = documentId;
+            loadFeedback(documentId);
         }
 
-        document.getElementById('submitFeedback').addEventListener('click', function() {
-        const feedbackText = document.getElementById('documentFeedback').value;
-        const uploadedFiles = document.querySelectorAll('.document-viewer .file-container object[data]');
-        const currentIndex = currentDocumentIndex;
-
-        // Check if there are uploaded documents
-        if (uploadedFiles.length === 0) {
-            alert('No documents uploaded.');
-            return;
-        }
-
-        // Check if feedback text is provided
-        if (feedbackText.trim() === '') {
-            alert('Please enter feedback before submitting.');
-            return;
-        }
-
-        // Get the current document filename
-        const currentFileName = uploadedFiles[currentIndex].getAttribute('data');
-        const fileNameWithoutExtension = currentFileName.split('/').pop().replace(/\.[^/.]+$/, ''); // Extract filename without extension
-
-        // Initialize jsPDF
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-
-        // Add feedback text to PDF
-        doc.text(feedbackText, 10, 10);
-
-        // Generate download filename based on the current document
-        const downloadName = fileNameWithoutExtension + "_feedback.pdf";
-
-        // Save the PDF
-        doc.save(downloadName);
-
-        });
 
         // JavaScript to handle sidebar toggling
         document.addEventListener('DOMContentLoaded', function() {
@@ -246,10 +511,49 @@
 
 
 
+        function confirmReset() {
+            if (confirm("Are you sure you want to reset? This will remove all documents.")) {
+                window.location.href = "{{ url_for('reset_project') }}"; // Adjust to your reset route
+            }
+        }
 
 
+
+
+        // Function to save feedback
+        function saveFeedback(documentId) {
+            const feedbackText = quill.root.innerHTML;
+            fetch(`/save_feedback/${documentId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `feedback=${encodeURIComponent(feedbackText)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message); // Show success message
+            })
+            .catch(error => console.error('Failed to save feedback', error));
+        }
+
+        // Function to load feedback for a document
+        function loadFeedback(documentId) {
+            fetch(`/load_feedback/${documentId}`)
+            .then(response => response.json())
+            .then(data => {
+                quill.setContents([]);  // Clear existing contents
+                quill.clipboard.dangerouslyPasteHTML(data.feedback || '');
+            })
+            .catch(error => console.error('Failed to load feedback', error));
+        }
+
+        // Add event listener for the save button
+
+        document.getElementById('saveFeedback').addEventListener('click', function() {
+            saveFeedback(currentDocumentId);
+        });
 
         
+        window.onload = loadTemplates;
 
     </script>
 
