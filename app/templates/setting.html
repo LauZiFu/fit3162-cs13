@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../static/normalize.css">
+    <link rel="stylesheet" href="../static/dashboard.css">
+    <script src="../static/dashboard.js" defer></script>
+    <title>setting</title>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="../images/profile.jpg" alt="" id="profile"></img>
+            <div id="name">Name(@name)</div>
+        </div>
+        <div class="sidebar">
+            <div class="logo">CS-11</div>
+            <ul class="nav">
+                <li><img src="{{ url_for('static', filename='images/home-account.svg')}}" alt=""><a href="">Home</a></li>
+                <li><img src="{{ url_for('static', filename='images/view-dashboard.svg')}}" alt=""><a href="{{url_for('create_project')}}">Dashboard</a></li>
+                <li><img src="{{url_for('static', filename='images/check-bold.svg')}}" alt=""><a href="">Tasks</a></li>
+                <li><img src="{{url_for('static', filename='images/cog.svg')}}" alt=""><a href="">Settings</a></li>
+                <li><img src="{{url_for('static', filename='images/help-box-multiple.svg')}}" alt=""><a href="{{url_for('help')}}">Help</a></li>
+            </ul>
+        </div>
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div id="uploadicon" class="container">
+                <div class="upload-section">
+                    <h2>Upload profile icon</h2>
+                    <input type="file" name="documentInput" webkitdirectory directory multiple accept="image/*">
+                </div>
+                
+                <button type="submit">Upload Profile Icon</button>
+            </div>
+            <div id="darkmode" calss="cliker">
+                <h1 id="DarkModetext">Dark Mode is OFF</h1>
+                <button onclick="darkMode()">Darkmode</button>
+                <button onclick="lightMode()">LightMode</button>
+                <script>
+                    function darkMode() {
+                    let element = document.body;
+                    let content = document.getElementById("DarkModetext");
+                    element.className = "dark-mode";
+                    content.innerText = "Dark Mode is ON";
+                }
+                function lightMode() {
+                    let element = document.body;
+                    let content = document.getElementById("DarkModetext");
+                    element.className = "light-mode";
+                    content.innerText = "Dark Mode is OFF";
+                }
+            </script>
+        </form>
+</html>
