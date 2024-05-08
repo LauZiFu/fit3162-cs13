@@ -7,18 +7,21 @@ const projectForm = document.querySelector("#myForm");
 
 let projectId = 0
 
+//render all the projects
 fetch('/get_projects')
     .then(response => response.json())
     .then(data => {
         projectId = data.last_id;
-        data.projects.forEach(project => {
-            title = project.title;
-            desc = project.description;
-            date = project.date;
-            id = project.id;
-            currProject = createProject(title,desc,date,id);
-            projectPanel.appendChild(currProject.project);
-        })
+        if(projectId !== 0){
+            data.projects.forEach(project => {
+                title = project.title;
+                desc = project.description;
+                date = project.date;
+                id = project.id;
+                currProject = createProject(title,desc,date,id);
+                projectPanel.appendChild(currProject.project);
+            })
+        }
     })
 
 newButton.addEventListener("click", ()=>{ 
@@ -76,7 +79,7 @@ function addChildren(list, node){
 function createProject(title, description, dateInput=-1, idInput=-1){
     //object variables
 
-    const date = dateInput == -1 ? getDate() : dateInput
+    const date = dateInput == -1 ? getDate() : dateInput;
     const id = idInput == -1 ? projectId : idInput;
     const project = document.createElement("form");
 
@@ -86,17 +89,31 @@ function createProject(title, description, dateInput=-1, idInput=-1){
     const enterHTML = document.createElement("button");
     const dateHTML = document.createElement("h2");
 
+    project.action = "/upload";
+
     //enter project button
     enterHTML.type = "submit";
     enterHTML.textContent = "Enter Project";
 
-    descHTML.textContent = description
-    titleHTML.textContent = title
-    dateHTML.textContent = date
+    descHTML.textContent = description;
+    titleHTML.textContent = title;
+    dateHTML.textContent = date;
 
-    project.method = "post";
+    project.method = "GET";
     project.classList.add("project_card");
     addChildren([titleHTML,descHTML, enterHTML, dateHTML], project);
-    return {id, title, description, date, project}
+
+    const queryParams = new URLSearchParams({ id: id });
+    
+    const enterProject = () => {
+        fetch(`/upload?${queryParams}`, {
+            method:"GET",
+            headers: { 'Content-Type': 'application/json' }})
+        .then(response => response.json())
+    };
+
+    project.addEventListener('submit', enterProject);
+    return {id, title, description, date, project};
+
 }
 

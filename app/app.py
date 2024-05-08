@@ -20,6 +20,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+proj_id = 0 #keep track of project id, so retrieving documents is correct
 
 # Login manager setup
 login_manager = LoginManager()
@@ -45,12 +46,14 @@ class Document(db.Model):
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
     feedback = db.Column(db.Text)
+    project_id = db.Column(db.Integer, primary_key=False)
 
 class CriteriaDocument(db.Model):
     __bind_key__ = 'documents'
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
+    project_id = db.Column(db.Integer)
 
 class Project(db.Model):
     __bind_key__ = 'documents'
@@ -156,7 +159,7 @@ def register():
 def dashboard():
     return render_template('dashboard.html')
 
-
+#Get projects from database
 @app.route('/add_project', methods=['POST'])
 def add_project():
     if request.is_json:
@@ -171,7 +174,10 @@ def add_project():
 @app.route('/get_projects', methods=['GET'])
 def get_projects():
     projects = Project.query.all() 
-    last_id = projects[-1].serialize()['id']
+    if len(projects) != 0: 
+        last_id = projects[-1].serialize()['id']
+    else:
+        last_id = 0
     return jsonify(projects=[project.serialize() for project in projects], last_id = last_id)
 
 
@@ -182,6 +188,7 @@ def help():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
+    global proj_id
     if request.method == 'POST':
         # Handle document uploads
         doc_files = request.files.getlist('documentInput')
@@ -189,7 +196,7 @@ def upload():
             if doc_file:
                 filename = secure_filename(doc_file.filename)
                 print("Uploaded document:", filename)  # Print the filename
-                new_doc = Document(filename=filename, data=doc_file.read())
+                new_doc = Document(filename=filename, data=doc_file.read(), project_id =proj_id )
                 db.session.add(new_doc)
 
         # Handle criteria document upload
@@ -197,13 +204,15 @@ def upload():
         if criteria_file:
             filename = secure_filename(criteria_file.filename)
             print("Uploaded criteria document:", filename)  # Print the filename
-            new_criteria = CriteriaDocument(filename=filename, data=criteria_file.read())
+            new_criteria = CriteriaDocument(filename=filename, data=criteria_file.read(), project_id =proj_id )
             db.session.add(new_criteria)
 
         db.session.commit()
+    if request.method == 'GET' and request.args.get('id')!=None:
+        proj_id = request.args.get('id')
 
-    documents = Document.query.all()
-    criteria = CriteriaDocument.query.first()  # Fetch the first criteria document from the database
+    documents = Document.query.filter_by(project_id=proj_id)
+    criteria = CriteriaDocument.query.filter_by(project_id=proj_id).first()# Fetch the first criteria document from the database
     return render_template('upload.html', documents=documents, criteria=criteria)
 
 
