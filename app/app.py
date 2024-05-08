@@ -52,6 +52,21 @@ class CriteriaDocument(db.Model):
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
 
+class Project(db.Model):
+    __bind_key__ = 'documents'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(100))
+    title = db.Column(db.String(100))
+    description = db.Column(db.String(100))
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'date': self.date,
+            'title': self.title,
+            'description': self.description
+        }
+    
 # User loader for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
@@ -102,7 +117,6 @@ def clear_templates():
     return jsonify(status='success', message='All custom templates cleared.')
 
 
-
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -111,7 +125,7 @@ def login():
         user = User.query.filter_by(username=form.username.data).first()
         if user and user.check_password(form.password.data):
             login_user(user)
-            return redirect(url_for('create_project'))
+            return redirect(url_for('dashboard'))
         return 'Invalid username or password'
     return render_template('login.html', form=form)
 
@@ -135,12 +149,30 @@ def register():
         return 'This username is already taken'
     return render_template('register.html', form=form)
 
-@app.route('/create_project', methods=['GET', 'POST'])
+
+#Dashboard routes
+@app.route('/dashboard')
 @login_required
-def create_project():
-    if request.method == 'POST':
-        return redirect(url_for('upload'))
+def dashboard():
     return render_template('dashboard.html')
+
+
+@app.route('/add_project', methods=['POST'])
+def add_project():
+    if request.is_json:
+        json_data = request.json
+        id, title,description,date = json_data['id'], json_data['title'], json_data['description'], json_data['date']
+        newProject = Project(id=id, title=title, description=description, date=date)
+        db.session.add(newProject)
+        db.session.commit()
+    return redirect(url_for("dashboard"))
+
+
+@app.route('/get_projects', methods=['GET'])
+def get_projects():
+    projects = Project.query.all() 
+    last_id = projects[-1].serialize()['id']
+    return jsonify(projects=[project.serialize() for project in projects], last_id = last_id)
 
 
 @app.route('/help')
@@ -204,7 +236,6 @@ def reset_project():
 
 
 
-
 @app.route('/save_feedback/<int:document_id>', methods=['POST'])
 def save_feedback(document_id):
     document = Document.query.get_or_404(document_id)
@@ -223,6 +254,7 @@ def load_feedback(document_id):
 @app.route('/')
 def home():
     return redirect(url_for('login'))
+
 
 # Main block
 if __name__ == '__main__':

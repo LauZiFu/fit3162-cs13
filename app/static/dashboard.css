@@ -137,12 +137,23 @@ div.content{
     display: flex;
     flex-direction: column;
     gap: 5px;
+
 }
 
 .project_card p{
     color: black;
     font-weight: normal;
     font-size: 14px;
+    width: 100%;
+    word-wrap: break-word;
+    flex: 1;
+}
+
+.project_card button {
+    font-size: 10px;
+    position: relative; /* Position the button relative to the form */
+    left: 50%; /* Center horizontally *//* 10px from the bottom */
+    transform: translateX(-50%); /* Adjust to center button perfectly */
 }
 
 div.form_popup{
