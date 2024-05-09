@@ -237,8 +237,8 @@ def download_criteria(document_id):
 @login_required
 def reset_project():
     # Delete all documents from the database
-    Document.query.delete()
-    CriteriaDocument.query.delete()
+    Document.query.filter_by(project_id=proj_id).delete()
+    CriteriaDocument.query.filter_by(project_id=proj_id).delete()
     db.session.commit()
     return redirect(url_for('upload'))
 
