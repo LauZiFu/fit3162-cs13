@@ -57,14 +57,14 @@ class CriteriaDocument(db.Model):
 
 class Project(db.Model):
     __bind_key__ = 'documents'
-    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(100))
     title = db.Column(db.String(100))
     description = db.Column(db.String(100))
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.project_id,
             'date': self.date,
             'title': self.title,
             'description': self.description
@@ -165,7 +165,7 @@ def add_project():
     if request.is_json:
         json_data = request.json
         id, title,description,date = json_data['id'], json_data['title'], json_data['description'], json_data['date']
-        newProject = Project(id=id, title=title, description=description, date=date)
+        newProject = Project(project_id=id, title=title, description=description, date=date)
         db.session.add(newProject)
         db.session.commit()
     return redirect(url_for("dashboard"))
@@ -210,7 +210,6 @@ def upload():
         db.session.commit()
     if request.method == 'GET' and request.args.get('id')!=None:
         proj_id = request.args.get('id')
-
     documents = Document.query.filter_by(project_id=proj_id)
     criteria = CriteriaDocument.query.filter_by(project_id=proj_id).first()# Fetch the first criteria document from the database
     return render_template('upload.html', documents=documents, criteria=criteria)

@@ -19,10 +19,10 @@
             <div class="logo">CS-11</div>
             <ul class="nav">
                 <li><img src="{{ url_for('static', filename='images/home-account.svg')}}" alt=""><a href="">Home</a></li>
-                <li><img src="{{ url_for('static', filename='images/view-dashboard.svg')}}" alt=""><a href="{{url_for('create_project')}}">Dashboard</a></li>
+                <li><img src="{{ url_for('static', filename='images/view-dashboard.svg')}}" alt=""><a href="{{url_for('dashboard')}}">Dashboard</a></li>
                 <li><img src="{{url_for('static', filename='images/check-bold.svg')}}" alt=""><a href="">Tasks</a></li>
                 <li><img src="{{url_for('static', filename='images/cog.svg')}}" alt=""><a href="">Settings</a></li>
-                <li><img src="{{url_for('static', filename='images/help-box-multiple.svg')}}" alt=""><a href="{{url_for('help')}}">Help</a></li>
+                <li class="highlight"><img src="{{url_for('static', filename='images/help-box-multiple.svg')}}" alt=""><a href="{{url_for('help')}}">Help</a></li>
             </ul>
         </div>
         <div class="content">

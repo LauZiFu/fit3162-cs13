@@ -71,12 +71,17 @@ button:hover{
     font-size: 1.5rem;
     font-weight: bolder;
     text-align: left;
-    padding-left: 30px;
+    padding-right: 0px!important;
     border-right: 3px solid #d1dff3;
 }    
 
 .sidebar a{
+    display: flex;
+    align-items: center;
     color: black;
+    flex: 1;
+    height: 100%;
+    align-self: center;
 }
 
 .sidebar li {
@@ -95,6 +100,7 @@ button:hover{
     display: flex;
     flex-direction: column;
     gap:2rem;
+    width: 100%;
 }
 
 div.content{
@@ -156,6 +162,15 @@ div.content{
     transform: translateX(-50%); /* Adjust to center button perfectly */
 }
 
+.project_card h2 {
+    color: grey;
+    font-size: 10px;
+}
+
+.project_card:hover{
+    opacity:75%;
+}
+
 div.form_popup{
     display:none;
     padding:25px;
@@ -198,3 +213,8 @@ section#form_buttons{
     flex-direction: row;
     gap: 10px;
 }
+
+.highlight {
+    background-color:#d1dff3;
+}
+

@@ -5,8 +5,6 @@ const projectPanel = document.querySelector("#projects");
 const createButton = document.querySelector("#submitButton");
 const projectForm = document.querySelector("#myForm");
 
-let projectId = 0
-
 //render all the projects
 fetch('/get_projects')
     .then(response => response.json())
@@ -76,7 +74,8 @@ function addChildren(list, node){
     });
 }    
 
-function createProject(title, description, dateInput=-1, idInput=-1){
+//function for projects
+function createProject(title, description, dateInput=-1, idInput=-1){ 
     //object variables
 
     const date = dateInput == -1 ? getDate() : dateInput;
@@ -86,34 +85,33 @@ function createProject(title, description, dateInput=-1, idInput=-1){
     //private variables
     const descHTML = document.createElement("p");
     const titleHTML = document.createElement("h1");
-    const enterHTML = document.createElement("button");
     const dateHTML = document.createElement("h2");
 
     project.action = "/upload";
 
-    //enter project button
-    enterHTML.type = "submit";
-    enterHTML.textContent = "Enter Project";
-
     descHTML.textContent = description;
     titleHTML.textContent = title;
-    dateHTML.textContent = date;
+    dateHTML.textContent = "Create Date: " + date;
 
     project.method = "GET";
-    project.classList.add("project_card");
-    addChildren([titleHTML,descHTML, enterHTML, dateHTML], project);
+    project.classList.add("project_card"); //add styling
+    addChildren([titleHTML,descHTML, dateHTML], project);
 
     const queryParams = new URLSearchParams({ id: id });
     
     const enterProject = () => {
         fetch(`/upload?${queryParams}`, {
-            method:"GET",
-            headers: { 'Content-Type': 'application/json' }})
-        .then(response => response.json())
+            method:"GET"})
+        .then(response => response.json());
+        project.submit();
     };
 
-    project.addEventListener('submit', enterProject);
-    return {id, title, description, date, project};
+    project.addEventListener("dblclick", enterProject);
 
+
+    return {id, title, description, date, project};
 }
 
+
+project1 = createProject("lol", "LOL");
+console.log(project1.descHTML);
