@@ -156,11 +156,13 @@ div.content{
     flex: 1;
 }
 
-.project_card button {
-    font-size: 10px;
-    position: relative; /* Position the button relative to the form */
-    left: 50%; /* Center horizontally *//* 10px from the bottom */
-    transform: translateX(-50%); /* Adjust to center button perfectly */
+.project_card div {
+    padding: 0px;
+    display: flex;
+}
+
+.project_card div h1 {
+    flex: 1;
 }
 
 .project_card h2 {
@@ -169,7 +171,8 @@ div.content{
 }
 
 .project_card:hover{
-    opacity:75%;
+    cursor: pointer;
+    border: 1px solid blue;
 }
 
 div.form_popup{
@@ -218,4 +221,45 @@ section#form_buttons{
 .highlight {
     background-color:#d1dff3;
 }
+
+.icons li {
+    background: none repeat scroll 0 0 #000000;
+    height: 5px;
+    width: 5px;
+    line-height: 0;
+    list-style: none outside none;
+    margin-right: 15px;
+    margin-top: 3px;
+    vertical-align: top;
+    border-radius:50%;
+    pointer-events: none;
+}
+
+.dropbtn {
+    color: white;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.dropdown_content {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.dropdown_content a {
+    padding: 10px 10px;
+    border-bottom: 1px solid grey;
+    color:black;
+}
+
+.dropdown_content a:hover{
+    background-color: #acaaaa;
+}
+
 

@@ -20,7 +20,7 @@ app.config['SQLALCHEMY_BINDS'] = {
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
-proj_id = 0 #keep track of project id, so retrieving documents is correct
+project = None #keep track of project id, so retrieving documents is correct
 
 # Login manager setup
 login_manager = LoginManager()
@@ -42,25 +42,32 @@ class User(UserMixin, db.Model):
 
 class Document(db.Model):
     __bind_key__ = 'documents'
+    __tablename__ = "document"
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
     feedback = db.Column(db.Text)
-    project_id = db.Column(db.Integer, primary_key=False)
+    project_id = db.Column(db.ForeignKey("project.project_id"))
+    project = db.relationship('Project', back_populates='documents')
 
 class CriteriaDocument(db.Model):
     __bind_key__ = 'documents'
+    __tablename__ = 'criteriaDocument'    
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(300))
     data = db.Column(db.LargeBinary)
-    project_id = db.Column(db.Integer)
+    project_id = db.Column(db.ForeignKey("project.project_id"))
+    project = db.relationship('Project', back_populates='criteria')
 
 class Project(db.Model):
     __bind_key__ = 'documents'
+    __tablename__ = 'project'    
     project_id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(100))
     title = db.Column(db.String(100))
     description = db.Column(db.String(100))
+    criteria = db.relationship('CriteriaDocument', cascade="all,delete", back_populates='project', uselist=False)
+    documents = db.relationship('Document', cascade="all,delete", back_populates='project')
 
     def serialize(self):
         return {
@@ -180,7 +187,7 @@ def get_projects():
         last_id = 0
     return jsonify(projects=[project.serialize() for project in projects], last_id = last_id)
 
-
+    
 @app.route('/help')
 def help():
     return render_template('help.html')
@@ -188,7 +195,7 @@ def help():
 
 @app.route('/upload', methods=['GET', 'POST'])
 def upload():
-    global proj_id
+    global project
     if request.method == 'POST':
         # Handle document uploads
         doc_files = request.files.getlist('documentInput')
@@ -196,7 +203,7 @@ def upload():
             if doc_file:
                 filename = secure_filename(doc_file.filename)
                 print("Uploaded document:", filename)  # Print the filename
-                new_doc = Document(filename=filename, data=doc_file.read(), project_id =proj_id )
+                new_doc = Document(filename=filename, data=doc_file.read(), project=project )
                 db.session.add(new_doc)
 
         # Handle criteria document upload
@@ -204,15 +211,26 @@ def upload():
         if criteria_file:
             filename = secure_filename(criteria_file.filename)
             print("Uploaded criteria document:", filename)  # Print the filename
-            new_criteria = CriteriaDocument(filename=filename, data=criteria_file.read(), project_id =proj_id )
+            new_criteria = CriteriaDocument(filename=filename, data=criteria_file.read(), project=project)
             db.session.add(new_criteria)
-
         db.session.commit()
+
     if request.method == 'GET' and request.args.get('id')!=None:
         proj_id = request.args.get('id')
-    documents = Document.query.filter_by(project_id=proj_id)
-    criteria = CriteriaDocument.query.filter_by(project_id=proj_id).first()# Fetch the first criteria document from the database
+        project = Project.query.get(proj_id)
+
+    documents = project.documents
+    criteria = project.criteria 
+    # Fetch the first criteria document from the database
     return render_template('upload.html', documents=documents, criteria=criteria)
+
+
+@app.route('/remove_project/<int:project_id>')
+def remove_project(project_id):
+    proj_del = Project.query.filter_by(project_id=project_id).first()
+    db.session.delete(proj_del)
+    db.session.commit()
+    return redirect(url_for('dashboard'))
 
 
 # Existing route to handle file download
@@ -228,7 +246,6 @@ def download_file(document_id):
 @app.route('/download_criteria/<int:document_id>')
 def download_criteria(document_id):
     criteria_document = CriteriaDocument.query.get_or_404(document_id)
-    
     # Serve the PDF data directly in the response
     return Response(criteria_document.data, mimetype='application/pdf')
 
@@ -236,9 +253,10 @@ def download_criteria(document_id):
 @app.route('/reset_project', methods=['POST'])
 @login_required
 def reset_project():
+    global project
     # Delete all documents from the database
-    Document.query.filter_by(project_id=proj_id).delete()
-    CriteriaDocument.query.filter_by(project_id=proj_id).delete()
+    Document.query.filter_by(project_id=project.project_id).delete()
+    CriteriaDocument.query.filter_by(project_id=project.project_id).delete()
     db.session.commit()
     return redirect(url_for('upload'))
 

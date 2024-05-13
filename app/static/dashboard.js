@@ -6,7 +6,8 @@ const createButton = document.querySelector("#submitButton");
 const projectForm = document.querySelector("#myForm");
 
 //render all the projects
-fetch('/get_projects')
+document.addEventListener("DOMContentLoaded", function(){
+    fetch('/get_projects')
     .then(response => response.json())
     .then(data => {
         projectId = data.last_id;
@@ -20,7 +21,9 @@ fetch('/get_projects')
                 projectPanel.appendChild(currProject.project);
             })
         }
-    })
+    });
+})
+
 
 newButton.addEventListener("click", ()=>{ 
     projectForm.style.display = "block";
@@ -86,6 +89,7 @@ function createProject(title, description, dateInput=-1, idInput=-1){
     const descHTML = document.createElement("p");
     const titleHTML = document.createElement("h1");
     const dateHTML = document.createElement("h2");
+    const header = document.createElement("div");
 
     project.action = "/upload";
 
@@ -95,7 +99,9 @@ function createProject(title, description, dateInput=-1, idInput=-1){
 
     project.method = "GET";
     project.classList.add("project_card"); //add styling
-    addChildren([titleHTML,descHTML, dateHTML], project);
+
+    addChildren([titleHTML, createDotMenu(id)], header);
+    addChildren([header,descHTML, dateHTML], project);
 
     const queryParams = new URLSearchParams({ id: id });
     
@@ -113,5 +119,64 @@ function createProject(title, description, dateInput=-1, idInput=-1){
 }
 
 
-project1 = createProject("lol", "LOL");
-console.log(project1.descHTML);
+function createDotMenu(project_id){
+    const dropdown = document.createElement("div"); 
+    const menu = document.createElement("div"); //drop menu
+    const icon = document.createElement("ul"); //dots
+
+    icon.classList.add("icons", "dropbtn");
+    menu.classList.add("dropdown_content");    
+    menu.style.display = "none";
+    dropdown.appendChild(icon);
+    dropdown.appendChild(menu);
+
+    const op = document.createElement("a");
+    op.textContent = "open";
+    op.href = "/upload";
+    const rename = document.createElement("a");
+    rename.textContent = "rename";
+    const del = document.createElement("a");
+    del.textContent = "delete";
+
+    addChildren([op,rename,del], menu);
+
+    for(let i = 0; i<3; i++){
+        icon.appendChild(document.createElement("li"));
+    };
+
+    icon.addEventListener('click', () =>{
+        menu.style.display = "flex";
+    })
+
+    del.addEventListener('click', () =>{
+        if(confirm("Are you sure you want to delete this project?")){
+            fetch(`/remove_project/${project_id}`)
+            .then(response => response.json());
+            location.reload();
+        }
+    });
+
+    op.addEventListener('click', ()=>{
+        fetch('/upload')
+        .then(response => response.json());
+    })
+
+    return dropdown
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+    window.addEventListener('click', (e) => {
+        let menus = document.querySelectorAll(".dropdown_content, .dropbtn");
+        let target = e.target;
+        console.log(menus);
+        if (!Array.from(menus).some(element => element.contains(target))){
+            menus.forEach((element)=>{
+                if(!element.classList.contains("dropbtn")){
+                    element.style.display = "none";
+                }
+
+            })
+        }
+    })
+})
+
