@@ -4,6 +4,8 @@ const closeButton = document.querySelector("#closeButton");
 const projectPanel = document.querySelector("#projects");
 const createButton = document.querySelector("#submitButton");
 const projectForm = document.querySelector("#myForm");
+const uname = document.querySelector("#name");
+
 
 //render all the projects
 document.addEventListener("DOMContentLoaded", function(){
@@ -11,6 +13,9 @@ document.addEventListener("DOMContentLoaded", function(){
     .then(response => response.json())
     .then(data => {
         projectId = data.last_id;
+        username = data.username;
+        uname.textContent = username;
+
         if(projectId !== 0){
             data.projects.forEach(project => {
                 title = project.title;

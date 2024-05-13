@@ -21,6 +21,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 project = None #keep track of project id, so retrieving documents is correct
+username = ""
 
 # Login manager setup
 login_manager = LoginManager()
@@ -130,9 +131,11 @@ def clear_templates():
 # Routes
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    global username
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
+        username = user.username
         if user and user.check_password(form.password.data):
             login_user(user)
             return redirect(url_for('dashboard'))
@@ -180,12 +183,13 @@ def add_project():
 
 @app.route('/get_projects', methods=['GET'])
 def get_projects():
+    global username
     projects = Project.query.all() 
     if len(projects) != 0: 
         last_id = projects[-1].serialize()['id']
     else:
         last_id = 0
-    return jsonify(projects=[project.serialize() for project in projects], last_id = last_id)
+    return jsonify(projects=[project.serialize() for project in projects], last_id = last_id, username=username)
 
     
 @app.route('/help')
