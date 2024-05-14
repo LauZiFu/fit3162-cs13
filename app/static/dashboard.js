@@ -138,12 +138,10 @@ function createDotMenu(project_id){
     const op = document.createElement("a");
     op.textContent = "open";
     op.href = "/upload";
-    const rename = document.createElement("a");
-    rename.textContent = "rename";
     const del = document.createElement("a");
     del.textContent = "delete";
 
-    addChildren([op,rename,del], menu);
+    addChildren([op,del], menu);
 
     for(let i = 0; i<3; i++){
         icon.appendChild(document.createElement("li"));
