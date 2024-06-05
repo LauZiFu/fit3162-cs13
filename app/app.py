@@ -173,12 +173,19 @@ def dashboard():
 @app.route('/add_project', methods=['POST'])
 def add_project():
     if request.is_json:
-        json_data = request.json
-        id, title,description,date = json_data['id'], json_data['title'], json_data['description'], json_data['date']
-        newProject = Project(project_id=id, title=title, description=description, date=date)
-        db.session.add(newProject)
-        db.session.commit()
-    return redirect(url_for("dashboard"))
+        try:
+            json_data = request.json
+            id, title, description, date = json_data['id'], json_data['title'], json_data['description'], json_data['date']
+        except KeyError as e:
+            return jsonify({'error': f'Missing key: {str(e)}'}), 400  # Return a JSON response with a descriptive error message and 400 status code
+        else:
+            newProject = Project(project_id=id, title=title, description=description, date=date)
+            db.session.add(newProject)
+            db.session.commit()
+            return redirect(url_for("dashboard"))
+    else:
+        return jsonify({'error': 'Request must be JSON'}), 400  # Return a JSON response with an error message and 400 status code for non-JSON requests
+
 
 
 @app.route('/get_projects', methods=['GET'])

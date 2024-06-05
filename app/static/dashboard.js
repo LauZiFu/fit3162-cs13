@@ -35,7 +35,7 @@ newButton.addEventListener("click", ()=>{
 });
 
 createButton.addEventListener("click", ()=>{
-    projectId += 1;
+    projectId += 1; //databse indexing
     desc = document.querySelector("#project_description");
     title = document.querySelector("#project_title");
     
